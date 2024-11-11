@@ -1,7 +1,7 @@
 // library imports
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GithubProvider from "next-auth/providers/github"
+import GithubProvider  from 'next-auth/providers/github';
 
 // types imports
 import type { NextAuthConfig, Session, User } from "next-auth";
@@ -23,19 +23,16 @@ declare module "next-auth/jwt" {
   interface JWT extends UserType {}
 }
 
-const authOptions = {
+export const authOptions = {
   providers: [
-    GithubProvider({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET
-    }),
     CredentialsProvider({
       id: "credentials",
       name: "Credentials",
       authorize: async (credentials) => {
         try {
+          console.log(process.env.NEXT_PUBLIC_BASE_URL + "=======")
           const user = await fetchUser(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/user/login`,
             {
               username:
                 typeof credentials.username === "string"
@@ -77,6 +74,10 @@ const authOptions = {
         }
       },
     }),
+    GithubProvider({
+      clientId: `${process.env.GITHUB_ID}`,
+      clientSecret: `${process.env.GITHUB_SECRET}`,
+    }),
   ],
   callbacks: {
     async jwt({ token, user }: { token: JWT; user: User }) {
@@ -115,6 +116,7 @@ const authOptions = {
   },
   pages: {
     signIn: "/auth/login", // Custom sign-in page
+    signOut: '/auth/logout',
     // error: "/auth/error", // Custom error page
   },
   session: {
